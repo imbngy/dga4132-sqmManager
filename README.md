@@ -1,5 +1,5 @@
 # TIM HUB (DGA4132) SQM Manager
- A simple tool for seamless management of rooted TIMHUB(DGA4132)'s SQM state in Python, using Paramiko for SSH communication. 
+ A simple tool made to manage TIMHUB(DGA4132)'s SQM state in Python, using Paramiko for SSH communication. 
 
 ## Installation
 
