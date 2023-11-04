@@ -1,6 +1,14 @@
 # TIM HUB (DGA4132) SQM Manager
  A simple tool made to manage TIMHUB(DGA4132)'s SQM state in Python, using Paramiko for SSH communication. 
 
+## Requirements
+
+1. You need to [root](https://www.ilpuntotecnico.com/forum/index.php/topic,78162.0.html) your TIMHUB;
+> [!WARNING]
+> The root process may be a bit janky, and it could result in bricking your TIMHUB, do it at your own risk.
+2. Then you need to [install SQM](https://www.ilpuntotecnico.com/forum/index.php?topic=85190.0).
+
+
 ## Installation
 
 1. Clone the repository:
