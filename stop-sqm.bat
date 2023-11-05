@@ -1,5 +1,5 @@
 @echo off
 
-python modem-tim.py -s
+python modem-tim.py -s -y
 
 pause

@@ -5,6 +5,7 @@ import sys
 import argparse
 import speedtest
 from colorama import Fore
+import getpass
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -15,6 +16,7 @@ def parse_args():
     parser.add_argument("-a", "--address", help="Change IP address. (default: 192.168.1.1)", required=False, action="store_true")
     parser.add_argument("-u", "--username", help="Change Username. (default: root)", required=False, action="store_true")
     parser.add_argument("-p", "--password", help="Change Password. (default: root)", required=False, action="store_true")
+    parser.add_argument("-y", "--yes", help="Skip the 'Are you sure?' prompt.", required=False, action="store_true")
     args = parser.parse_args()
     return args
 
@@ -83,7 +85,10 @@ def speed_test():
     print("Ping: " + str(res["ping"]) + " ms")
     return None
 
-def are_you_sure_check():
+def are_you_sure_check(yes):
+    if yes:
+        return None
+    #check if user wants to continue
     user_input = input("Are you sure you want to continue?(Y/n)")
     positive = ["Y", "y", "yes", "Yes", "YES", "si", "Si", "SI", "s", "S"]
     if user_input not in positive:
@@ -92,11 +97,12 @@ def are_you_sure_check():
     return None
 
 def main():
+
+    yes = False
+    #check if user wants to skip the 'Are you sure?' prompt
+    if "-y" in sys.argv or "--yes" in sys.argv:
+        yes = True
     #print warning
-    print(Fore.RED, "WARNING: This script is for rooted TIM HUBs (DGA 4132) only. If you have a different modem, this script will not work. \n", Fore.RESET)
-    print(Fore.YELLOW, "WARNING: This script will not work if you have not installed SQM, or if you have changed the stock port for SSH. \n", Fore.RESET)
-    #Are you sure you want to continue?
-    are_you_sure_check()
 
     print(r"""
          
@@ -114,6 +120,12 @@ def main():
 
     #check args
     args = parse_args()
+
+    if not args.yes:
+        print(Fore.RED, "WARNING: This script is for rooted TIM HUBs (DGA 4132) only. If you have a different modem, this script will not work. \n", Fore.RESET)
+        print(Fore.YELLOW, "WARNING: This script will not work if you have not installed SQM, or if you have changed the stock port for SSH. \n", Fore.RESET)
+    #Are you sure you want to continue?
+    are_you_sure_check(yes)
 
     #set stock values if args not specified
     if args.address:
