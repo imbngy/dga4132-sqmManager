@@ -35,18 +35,20 @@ Run the script using one of the following methods:
 - Option 2: Run the script directly using Python:
 
   ```bash
-  py modem-tim.py
+  py modem-tim.py --options
   ```
+
+> [!NOTE]
+> On the first run, the script will create a config.json file, and will ask for ip, username and password for the SSH connection.
 
 ## Command-line Options
 
+- `-h` or `--help`: Shows all options and exits.
 - `-s` or `--stop`: Stop SQM.
 - `-r` or `--restart`: Restart SQM.
 - `-i` or `--start`: Start SQM.
 - `-t` or `--speedtest`: Run a Speedtest to check changes.
-- `-a` or `--address`: Change IP address (default: 192.168.1.1).
-- `-u` or `--username`: Change Username (default: root).
-- `-p` or `--password`: Change Password (default: root).
+- `-c` or `--config`: Configure the script.
 
 ### Example
 

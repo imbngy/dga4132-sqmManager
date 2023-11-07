@@ -6,6 +6,7 @@ import argparse
 import speedtest
 from colorama import Fore
 import getpass
+import json
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -13,9 +14,7 @@ def parse_args():
     parser.add_argument("-r", "--restart", help="Restart SQM.", required=False, action="store_true")
     parser.add_argument("-i", "--start", help="Start SQM.", required=False, action="store_true")
     parser.add_argument("-t", "--speedtest", help="Run a Speedtest to check changes...", required=False, action="store_true")
-    parser.add_argument("-a", "--address", help="Change IP address. (default: 192.168.1.1)", required=False, action="store_true")
-    parser.add_argument("-u", "--username", help="Change Username. (default: root)", required=False, action="store_true")
-    parser.add_argument("-p", "--password", help="Change Password. (default: root)", required=False, action="store_true")
+    parser.add_argument("-c", "--config", help="Configure the script.", required=False, action="store_true")
     parser.add_argument("-y", "--yes", help="Skip the 'Are you sure?' prompt.", required=False, action="store_true")
     args = parser.parse_args()
     return args
@@ -96,13 +95,44 @@ def are_you_sure_check(yes):
         sys.exit(0)
     return None
 
+def config_f(stock):
+    print(Fore.YELLOW,"Configuring script...", Fore.RESET)
+    if not stock:
+        config = {}
+        config["ip"] = input("Enter IP (default:192.168.1.1) :")
+        config["username"] = input("Enter username (default: root) :")
+        config["password"] = getpass.getpass("Enter password (default: root) :")
+        config["first_run"] = False
+    else:
+        ip, username, password = set_stock()
+        config = {}
+        config["ip"] = ip
+        config["username"] = username
+        config["password"] = password
+        config["first_run"] = False
+    with open("config.json", "w") as f:
+        json.dump(config, f)
+    #wait for config file to be created
+    time.sleep(2)
+    print("Configured!")
+
+def check_if_stock():
+    print(Fore.GREEN, "Do you want to use stock values? \n", Fore.RESET)
+    stock = input("Y/n: ")
+    if stock not in ["Y", "y", "yes", "Yes", "YES", "si", "Si", "SI", "s", "S"]:
+        stock = False
+    else:
+        stock = True
+    return stock
+    
+
 def main():
 
     yes = False
     #check if user wants to skip the 'Are you sure?' prompt
     if "-y" in sys.argv or "--yes" in sys.argv:
         yes = True
-    #print warning
+    
 
     print(r"""
          
@@ -120,22 +150,42 @@ def main():
 
     #check args
     args = parse_args()
-
+    
     if not args.yes:
         print(Fore.RED, "WARNING: This script is for rooted TIM HUBs (DGA 4132) only. If you have a different modem, this script will not work. \n", Fore.RESET)
         print(Fore.YELLOW, "WARNING: This script will not work if you have not installed SQM, or if you have changed the stock port for SSH. \n", Fore.RESET)
     #Are you sure you want to continue?
     are_you_sure_check(yes)
 
-    #set stock values if args not specified
-    if args.address:
-        ip = input("Enter IP: ")
-    if args.username:
-        username = input("Enter username: ")
-    if args.password:
-        password = getpass.getpass("Enter password: ")
-    if args.address == False and args.username == False and args.password == False:
-        ip, username, password = set_stock()
+    #check if user wants to configure the script
+    if args.config:
+        config_f(stock=False)
+
+    #check if config file exists
+    if os.path.isfile("config.json"):
+        with open("config.json", "r") as f:
+            config = json.load(f)
+        #check if first run, if so, ask if user wants to use stock values
+        if config["first_run"]:
+            stock = check_if_stock()
+            config_f(stock)
+        #load config
+        ip = config["ip"]        
+        username = config["username"]
+        print(Fore.GREEN, f"Using conf: {username}@{ip}", Fore.RESET)
+        password = config["password"]
+    else:
+        #if config file does not exist, ask if user wants to use stock values
+        print(Fore.YELLOW, "Config file not found... ", Fore.RESET)
+        stock = check_if_stock()
+        config_f(stock)
+        with open("config.json", "r") as f:
+            config = json.load(f)
+        #load config
+        ip = config["ip"]
+        username = config["username"]
+        print(Fore.GREEN, f"Using conf: {username}@{ip}", Fore.RESET)
+        password = config["password"]
 
     #connect to modem
     ssh = connect(ip, username, password)
